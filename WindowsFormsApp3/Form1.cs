@@ -1,0 +1,99 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApp3
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            // تفريغ جميع مربعات النص
+            textBox1.Clear();
+            textBox2.Clear();
+
+            // إعادة اختيار أول عنصر في القائمة المنسدلة
+            if (comboBox1.Items.Count > 0)
+                comboBox1.SelectedIndex = 0;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            double amount; // متغير لتخزين الرقم
+
+            // 1. التأكد أن الحقول ليست فارغة
+            if (textBox1.Text != "" && textBox2.Text != "")
+            {
+                // 2. محاولة تحويل النص في textBox1 إلى رقم
+                // إذا نجح التحويل، سيتم تخزين الرقم في المتغير amount
+                if (double.TryParse(textBox1.Text, out amount))
+                {
+                    // إضافة السطر للجدول (تاريخ، تصنيف، اسم، مبلغ)
+                    dataGridView1.Rows.Add(dateTimePicker1.Text, comboBox1.Text, textBox2.Text, amount);
+
+                    // تصفير المربعات وتحديث الإجمالي
+                    textBox1.Clear();
+                    textBox2.Clear();
+                    UpdateTotal();
+                }
+                else
+                {
+                    // إذا فشل التحويل (يعني المستخدم أدخل حروفاً)
+                    MessageBox.Show("خطأ: يرجى إدخال أرقام فقط في خانة المبلغ");
+                    textBox1.Focus(); // وضع المؤشر في مربع المبلغ لتصحيحه
+                }
+            }
+            else
+            {
+                MessageBox.Show("يرجى تعبئة جميع البيانات");
+            }
+        }
+        private void UpdateTotal()
+        {
+            double total = 0;
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                // نجمع القيم الموجودة في عمود المبلغ (العمود رقم 4، فهرسه 3)
+                if (row.Cells[3].Value != null)
+                {
+                    total += Convert.ToDouble(row.Cells[3].Value);
+                }
+            }
+            // عرض النتيجة في label4
+            label4.Text = "الإجمالي: " + total.ToString();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            // التأكد من أن المستخدم اختار سطراً واحداً على الأقل في الجدول
+            if (dataGridView1.SelectedRows.Count > 0)
+            {
+                // حذف السطر المحدد
+                dataGridView1.Rows.RemoveAt(dataGridView1.SelectedRows[0].Index);
+
+                // تحديث الإجمالي بعد الحذف
+                UpdateTotal();
+            }
+            else
+            {
+                MessageBox.Show("يرجى تحديد السطر المراد حذفه من الجدول أولاً");
+            }
+        }
+    }
+}
